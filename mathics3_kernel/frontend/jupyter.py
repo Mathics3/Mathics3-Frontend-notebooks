@@ -15,12 +15,12 @@ from mathics.session import MathicsSession
 
 from mathics3_kernel.frontend.markdown_mathics3 import MarkdownMathics3Magic
 
-from .markdown_mathics3 import MarkdownFormatter
+from .format import Formatter
 
 import_and_load_builtins()
 
 
-class JupyterFormatter(MarkdownFormatter):
+class JupyterFormatter(Formatter):
     def text(self, result):
         return Code(result, language="mathematica")
 
@@ -67,6 +67,14 @@ class Mathics3Magic(Magics):
     @line_cell_magic
     def mathics3(self, line: str, cell: str = ""):
         stripped_cell = cell.lstrip()
+        if stripped_cell.startswith("%html"):
+            # Handle %html blocks ---
+            # Strip the magic tag off the string to isolate the raw HTML payload
+            html_content = stripped_cell[len("%html") :].lstrip()
+            # If it's used as a line magic instead of cell magic, fall back to line string
+            if not html_content and line:
+                html_content = line
+            return HTML(html_content)
         if stripped_cell.startswith("%m3md"):
             cell = stripped_cell[len("%m3md") :]
             return self.markdown.markdown_mathics3(line, cell)

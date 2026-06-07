@@ -10,9 +10,14 @@
    dist \
    lab \
    notebook \
+   register-kernel \
    rmChangeLog
 
 GIT2CL ?= admin-tools/git2cl
+PYTHON3 ?= python3
+
+# Default options
+o = --notebook-dir=$(HOME)/Jupyter-notebooks
 
 #: Make distribution: wheels and tarball
 dist:
@@ -20,15 +25,23 @@ dist:
 
 #: Run a Jupyter lab; the more modern IDE
 lab:
-	jupyter lab
+	jupyter lab --kernel=mathics3-extension-ipykernel $o
+
+#: List all of the Jupyter Kernels installed
+list-kernels:
+	jupyter kernelspec list
 
 #: Run a Jupyter notebook; the classic single-instance interface
 notebook:
-	jupyter notebook
+	jupyter notebook $o
 
 #: Run a Jupyter console; for debugging.
 console:
-	jupyter console
+	jupyter console --kernel=mathics3-extension-ipykernel
+
+#: Register a mathics3 Jupyter kernel
+register-kernel:
+	$(PYTHON3) -m mathics3_kernel.frontend.install_kernel
 
 #: Remove ChangeLog
 rmChangeLog:
